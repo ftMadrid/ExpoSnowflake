@@ -15,16 +15,18 @@ CREATE OR REPLACE TABLE FACT_FILM_REVENUE (
 );
 
 -- exportar a csv
-
-SELECT f.film_id, f.title, c.name AS category_name, f.rental_rate::float,
-       COUNT(r.rental_id)::int AS total_rentals,
-       COALESCE(SUM(p.amount), 0)::float AS total_revenue
+SELECT f.film_id, 
+       f.title, 
+       c.name AS category_name, 
+       f.rental_rate::float,
+       COUNT(r.rental_id) AS total_rentals,
+       COALESCE(SUM(p.amount), 0) AS total_revenue
 FROM film f
-JOIN film_category fc ON f.film_id = fc.film_id
-JOIN category c ON fc.category_id = c.category_id
-LEFT JOIN inventory i ON f.film_id = i.film_id
-LEFT JOIN rental r ON i.inventory_id = r.inventory_id
-LEFT JOIN payment p ON r.rental_id = p.rental_id
+INNER JOIN film_category fc ON f.film_id = fc.film_id
+INNER JOIN category c ON fc.category_id = c.category_id
+INNER JOIN inventory i ON f.film_id = i.film_id
+INNER JOIN rental r ON i.inventory_id = r.inventory_id
+INNER JOIN payment p ON r.rental_id = p.rental_id
 GROUP BY f.film_id, f.title, c.name, f.rental_rate
 ORDER BY total_revenue DESC;
 
